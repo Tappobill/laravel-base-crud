@@ -37,6 +37,18 @@ class ComicController extends Controller
     public function store(Request $request)
     {
         $data = $request->All();
+
+        $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+            'thumb' => 'required',
+            'price' => 'required',
+            'series' => 'required',
+            'sale_date' => 'required',
+            'type' => 'required'
+        ]);
+
+
         $new_comic = new Comic();
         $new_comic->fill($data);
         $new_comic->save();
@@ -61,9 +73,11 @@ class ComicController extends Controller
      * @param  \App\Models\Comic  $comic
      * @return \Illuminate\Http\Response
      */
-    public function edit(Comic $comic)
+    public function edit($id)
     {
-        //
+        $comic = Comic::findorFail($id);
+
+        return view('pages.comic.edit', compact('comic'));
     }
 
     /**
@@ -73,9 +87,12 @@ class ComicController extends Controller
      * @param  \App\Models\Comic  $comic
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Comic $comic)
+    public function update(Request $request, $id)
     {
-        //
+        $data = $request->All();
+        $comic = Comic::findorFail($id);
+        $comic->update($data);
+        return redirect()->route('comics.show', $comic->id);
     }
 
     /**
@@ -84,8 +101,10 @@ class ComicController extends Controller
      * @param  \App\Models\Comic  $comic
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Comic $comic)
+    public function destroy($id)
     {
-        //
+        $comic = Comic::findorFail($id);
+        $comic->delete();
+        return redirect()->route('comics.index')->with('rimozione', "La rimozione di $comic->title è avvenuta con successo.");
     }
 }
